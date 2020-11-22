@@ -1,6 +1,6 @@
+import { worker } from 'cluster'
 import * as THREE from '/build/three.module.js'
 import { OrbitControls } from '/jsm/controls/OrbitControls'
-
 
 const scene: THREE.Scene = new THREE.Scene()
 
@@ -8,9 +8,14 @@ const camera: THREE.PerspectiveCamera = new THREE.PerspectiveCamera(75, window.i
 
 const renderer: THREE.WebGLRenderer = new THREE.WebGLRenderer()
 renderer.setSize(window.innerWidth, window.innerHeight)
+const render = () => {
+    renderer.render(scene, camera)
+}
+
 document.body.appendChild(renderer.domElement)
 
 const controls = new OrbitControls(camera, renderer.domElement)
+// controls.addEventListener("change", render)
 
 const geometry: THREE.BoxGeometry = new THREE.BoxGeometry()
 const material: THREE.MeshBasicMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true })
@@ -20,15 +25,22 @@ scene.add(cube)
 
 camera.position.z = 2
 
-var animate = function () {
+const onWindowResize = () => {
+    camera.aspect = window.innerWidth / window.innerHeight
+    camera.updateProjectionMatrix()
+    renderer.setSize(window.innerWidth, window.innerHeight)
+    render()
+}
+window.addEventListener("resize", onWindowResize, false)
+
+let animate = function () {
     requestAnimationFrame(animate)
 
     cube.rotation.x += 0.01;
     cube.rotation.y += 0.01;
 
-    // controls.update()
-
-    renderer.render(scene, camera)
+    render()
 };
 
-animate();
+animate() //// looping
+//render() ////one time
